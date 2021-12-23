@@ -1,5 +1,7 @@
 package com.wnra.capitalize;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -9,10 +11,18 @@ public class CapitalizeApplier {
 
 	public static <T> void injectFormatting(T objeto) {
 		Class<?> classe = objeto.getClass();
-		var camposDeclarados = List.of(classe.getDeclaredFields());
+		List <Field> camposDeclarados = new ArrayList<>();
+
+		if (objeto.getClass().getSuperclass() != Object.class) {
+			camposDeclarados.addAll(List.of(classe.getSuperclass().getDeclaredFields()));
+		}
+		
+		camposDeclarados.addAll(List.of(classe.getDeclaredFields()));
+		
 		var camposCapitalize = camposDeclarados.stream()
 				.filter(field -> field.isAnnotationPresent(Capitalize.class) && field.getGenericType() == String.class)
 				.collect(Collectors.toList());
+		System.out.println("Campos declarados: " + camposCapitalize.size());
 
 		camposCapitalize.forEach(field -> {
 			try {
