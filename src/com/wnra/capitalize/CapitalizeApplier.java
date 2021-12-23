@@ -23,5 +23,24 @@ public class CapitalizeApplier {
 			}
 		});
 	}
+	
+	public static <T> void injectFormatting(T ...objetos) {
+		for (var objeto : objetos) {
+		Class<?> classe = objeto.getClass();
+		var camposDeclarados = List.of(classe.getDeclaredFields());
+		var camposCapitalize = camposDeclarados.stream()
+				.filter(field -> field.isAnnotationPresent(Capitalize.class) && field.getGenericType() == String.class)
+				.collect(Collectors.toList());
+
+		camposCapitalize.forEach(field -> {
+			try {
+				field.setAccessible(true);
+				field.set(objeto, Formatacoes.capitalize(field.get(objeto).toString()));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+		}
+	}
 
 }
